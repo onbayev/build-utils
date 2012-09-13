@@ -6,7 +6,6 @@
 EAP6_DIR=/home/kanat/jboss-eap-6.0
 PROJ_DIR=/home/kanat/git/kudos
 FILE=/home/kanat/.isDeploying
-
 #define redeploy function 
 redeployKudos(){
 $EAP6_DIR/bin/jboss-cli.sh --connect <<END
@@ -26,21 +25,22 @@ END
 
 if [ -e "$FILE" ]; then
 
-sendmail -t << EOF
-to:kanat.onbayev@bee.kz
-from:dev@b2e.kz
-subject:JBOSS ERROR
-Jboss is not responding
-EOF
-
+#sendmail -t << EOF
+#to:kanat.onbayev@bee.kz
+#from:dev@b2e.kz
+#subject:JBOSS ERROR
+#Jboss is not responding
+#EOF
+echo "JBOSS ERROR"
 else
-  touch $FILE;
+  touch $FILE
+  echo $$ > $FILE
   cd $PROJ_DIR
   git fetch origin
 
   LOCAL_REV="$(git log -n1 --format=format:%H refs/heads/master)"
   REMOTE_REV="$(git log -n1 --format=format:%H refs/remotes/origin/master)"
-  
+  echo $LOCAL_REV $REMOTE_REV	  
   if [ $LOCAL_REV = $REMOTE_REV ]; then
         echo `date`: 'No changes, nothing to do'
   else
@@ -55,29 +55,31 @@ else
                 if redeployKudos 
                   then
 MESSAGE=`git log "$LOCAL_REV..$REMOTE_REV"`
-sendmail -t <<EOF
-to:maxat.zhuniskhanov@bee.kz,nurlan.muldashev@bee.kz,yerzhan.mukhamejan@bee.kz,ruslan.bagybayev@bee.kz
-from:dev@b2e.kz
-subject:Commits successfully deployed.
-$MESSAGE
-EOF
-
+#sendmail -t <<EOF
+#to:maxat.zhuniskhanov@bee.kz,nurlan.muldashev@bee.kz,yerzhan.mukhamejan@bee.kz,ruslan.bagybayev@bee.kz
+#from:dev@b2e.kz
+#subject:Commits successfully deployed.
+#$MESSAGE
+#EOF
+echo "SUCCSESSFULL DEPLOY"
                 else
-sendmail -t << EOF
-to:kanat.onbayev@bee.kz
-from:dev@b2e.kz
-subject:DEPLOYMENT ERROR
-There is an error, while deploy
-EOF
+echo "DEPLOYMENT ERROR"
+#sendmail -t << EOF
+#to:kanat.onbayev@bee.kz
+#from:dev@b2e.kz
+#subject:DEPLOYMENT ERROR
+#There is an error, while deploy
+#EOF
         
                 fi
         else
-sendmail -t << EOF
-to:kanat.onbayev@bee.kz
-from:dev@b2e.kz
-subject:GIT ERROR
-There is an error, while rebase
-EOF
+echo "GIT ERROR"
+#sendmail -t << EOF
+#to:kanat.onbayev@bee.kz
+#from:dev@b2e.kz
+#subject:GIT ERROR
+#There is an error, while rebase
+#EOF
         fi
   fi
   rm $FILE      
